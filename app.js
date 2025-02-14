@@ -5,8 +5,8 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import { v4 as uuidv4 } from "uuid";
 import os from "os";
-import Session from "./model.js"; // Importar el modelo de la sesión
-import './index.js'; // Asegurarnos de que index.js (conexión) se ejecute antes
+import Session from "./model.js"; 
+import './index.js'; 
 
 const app = express();
 const PORT = 3000;
@@ -31,7 +31,7 @@ app.get('/' ,(request,response) =>{
                                         author:"Luis Daniel Suarez Escamilla."})
 })
 
-// Función de utilidad que permite acceder y extraer la direccion del cliente
+
 const getClientIp = (req) => {
   return (
     req.headers["x-forwarded-for"] || // Contiene la IP del cliente
@@ -43,12 +43,11 @@ const getClientIp = (req) => {
 
 const sessions = {};
 
-// Funcionalidad que nos permite acceder a la información de la interfaz gráfica de red
 const getServerNetworkInfo = () => {
   const interfaces = os.networkInterfaces();
   for (const name in interfaces) {
-    for (const iface of interfaces[name]) { // Corregido: 'interfaces[name]' en lugar de 'interfaces'
-      if (iface.family === 'IPv4' && !iface.internal) { // Corregido: 'iface.internal'
+    for (const iface of interfaces[name]) { 
+      if (iface.family === 'IPv4' && !iface.internal) { 
         return { serverIp: iface.address, serverMac: iface.mac };
       }
     }
@@ -116,14 +115,11 @@ app.post("/logout", async (req, res) => {
           return res.status(404).json({ message: "No se ha encontrado una sesión activa." });
       }
 
-      // Actualizar el estado de la sesión a "Finalizada por el Usuario" y la fecha de último acceso
       session.status = "Finalizada por el usuario";
       session.lastAccessedAt = new Date();
 
-      // Guardar los cambios en la base de datos
       await session.save();
 
-      // Si hay una sesión activa en el servidor, destruirla
       req.session?.destroy((err) => {
           if (err) {
               return res.status(500).json({ message: "Error al cerrar la sesión en el servidor." });
